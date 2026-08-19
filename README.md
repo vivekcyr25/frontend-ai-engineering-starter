@@ -13,6 +13,17 @@ Use it to:
 - Work with Cursor AI using documented conventions
 - Build frontend features incrementally on a simple HTML/CSS/JS stack
 
+## Project Structure
+
+| File | Purpose |
+|------|---------|
+| `README.md` | Project overview, setup instructions, and conventions |
+| `LICENSE` | MIT License for the repository |
+| `.gitignore` | Excludes dependencies, build output, secrets, and OS files from Git |
+| `CLAUDE.md` | Instructions for AI coding assistants (stack, conventions, Git rules) |
+
+As you add frontend code, place HTML at the project root or in a `src/` folder, with CSS and JavaScript alongside or in matching subfolders.
+
 ## Technology Stack
 
 | Tool | Role |

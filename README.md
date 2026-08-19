@@ -59,7 +59,14 @@ This project was set up with Git 2.52+ and Node.js 22.x. Any recent LTS versions
 
 ### Setup
 
-1. Clone or open this repository locally.
+1. Clone this repository and enter the project folder:
+
+   ```bash
+   git clone https://github.com/vivekcyr25/frontend-ai-engineering-starter.git
+   cd frontend-ai-engineering-starter
+   ```
+
+   If you already have a local copy, open that folder instead.
 2. Open the project folder in [Cursor](https://cursor.com/).
 3. Read [`CLAUDE.md`](./CLAUDE.md) so AI assistants follow project conventions.
 4. Add HTML, CSS, and JavaScript files as you build features — no build step is required for the starter.

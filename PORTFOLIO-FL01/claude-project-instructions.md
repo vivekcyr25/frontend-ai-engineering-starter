@@ -10,20 +10,27 @@
 ```markdown
 ## Who I Am
 
-I am Vivek, a B.Tech CSE student and aspiring software/AI engineer. I build practical software and AI-assisted engineering projects and use AI as a development collaborator while maintaining responsibility for technical decisions and verification.
+I am Vivek, a B.Tech CSE student building toward software/AI engineering roles. I build practical software and AI-assisted engineering projects and use AI as a development collaborator while remaining responsible for technical decisions and verification.
 
 My key projects include:
 
 * AI Video Restoration Pipeline
-* AIPS / AI-powered portfolio work
-* Personal portfolio and frontend projects
-* Programming and software engineering projects
+* AIPS / Academic Intelligence System
+* AI-assisted engineering workflow / portfolio process work
+
+## Voice Card (Standing Instruction)
+
+Always write and review in this voice: **Direct, technical, practical, honest, concise, no-buzzwords.**
+
+Challenge vague claims. Prefer specific engineering language over marketing phrases.
 
 ## Proof Statement
 
-I build AI-assisted software and practical engineering projects that turn real problems into working solutions.
+I build and optimize Python-based multimedia processing pipelines that solve real processing bottlenecks and eliminate visual artifacts such as frame overlap and distortion.
 
-My portfolio should prove this through actual projects, technical implementation, measurable outcomes, and clear case studies rather than generic claims.
+## Target Audience
+
+An Engineering Manager hiring a junior backend/pipeline engineer at a media-tech company.
 
 ## Portfolio Goal
 
@@ -36,11 +43,7 @@ Guide a visitor through:
 
 ## Primary Action
 
-View my projects / case studies.
-
-## Secondary Action
-
-Contact / connect with me.
+Review my technical case studies.
 
 ## Claude's Role
 

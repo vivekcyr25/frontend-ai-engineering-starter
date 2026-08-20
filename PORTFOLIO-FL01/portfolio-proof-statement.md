@@ -54,7 +54,7 @@ CLAIM
 - [x] **Exactly ONE primary claim:** Building & optimizing Python multimedia processing pipelines without artifacts.
 - [x] **Claim names a specific skill:** Python pipeline engineering, model integration, artifact/bottleneck debugging.
 - [x] **Exactly ONE specific audience:** Engineering Manager at a media/tech company hiring a junior backend/pipeline engineer.
-- [x] **Realistically targetable:** Directly aligns with junior engineering and intern roles in media processing/applied AI.
+- [x] **Realistically targetable:** Directly aligns with junior engineering and intern role in media processing/applied AI.
 - [x] **Exactly ONE primary action:** Review technical case studies.
 - [x] **Supported by actual work:** Grounded directly in the AI Video Restoration Pipeline code and frame-matcher logic.
 - [x] **Zero vague buzzwords:** No empty claims of being "passionate", "creative", or "innovative".

@@ -1,4 +1,4 @@
-# Portfolio Case Studies
+-# Portfolio Case Studies
 
 **Audience:** Engineering Manager hiring a junior backend/pipeline engineer at a media-tech company.  
 **Proof statement:** I build and optimize Python-based multimedia processing pipelines that solve real processing bottlenecks and eliminate visual artifacts such as frame overlap and distortion.  

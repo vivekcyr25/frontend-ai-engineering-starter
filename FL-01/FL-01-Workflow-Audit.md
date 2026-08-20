@@ -126,9 +126,6 @@ One of my major projects is an AI Video Restoration Pipeline for restoring old w
 
 **Evidence folder:** `FL-01/evidence/` — ready for manual screenshot upload. No placeholder or fabricated images have been included.
 
-### Screenshot provided during this run
-![Cursor UI screenshot](assets/c__Users_hp_AppData_Roaming_Cursor_User_workspaceStorage_0d513cb501063bd0a9909d98183c1af4_images_image-f988f8b7-9d7e-4f92-a17c-cd57a716fbb8.png)
-
 ---
 
 ## 6. Submission Checklist
@@ -139,14 +136,14 @@ One of my major projects is an AI Video Restoration Pipeline for restoring old w
 - [x] At least two "Just me" tasks (Tasks 5 and 13)
 - [x] Three target tasks selected
 - [x] All three have measurable success definitions
-- [x] Claude Project configured *(documented; screenshot evidence required)*
+- [ ] Claude Project configured *(documented; screenshot evidence required)*
 - [ ] Claude Project screenshot captured
 - [ ] ChatGPT/Claude/Academy evidence captured
 - [ ] AI Fluency first module completed
-- [x] Final PDF created
-- [x] PDF uploaded to GitHub
+- [ ] Final PDF created
+- [ ] PDF uploaded to GitHub
 - [ ] Evidence screenshots added to GitHub
-- [x] Final changes committed and pushed
+- [ ] Final changes committed and pushed
 
 ---
 

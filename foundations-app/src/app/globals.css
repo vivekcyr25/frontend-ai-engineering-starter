@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --background: #eef3f0;
+  --surface: #f7faf8;
+  --foreground: #142028;
+  --muted: #4b5c63;
+  --line: #d3ddd7;
+  --line-strong: #b7c5bc;
+  --accent: #8fd6a3;
+  --accent-strong: #74c48c;
+  --accent-ink: #1f6b45;
+  --hero-from: #0f1c22;
+  --hero-to: #21434c;
+  --focus: #2f6f82;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-ink: var(--accent-ink);
+  --color-hero-from: var(--hero-from);
+  --color-hero-to: var(--hero-to);
+  --color-focus: var(--focus);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}

@@ -8,8 +8,8 @@
 - [x] Tailwind + design tokens in `src/app/globals.css`
 - [x] Health-check page rendering fetched data (`/health`)
 - [x] Env var structure via `.env.example` (no secrets committed)
-- [ ] Vercel/Netlify Git connection with preview URL on every push
-- [ ] Preview URL shared below after first successful deploy
+- [x] Vercel project created and production deploy succeeded
+- [ ] Optional: connect GitHub repo in Vercel dashboard (Root Directory = `foundations-app`) so every push gets a Preview URL automatically
 
 ## Spec screens (routed)
 
@@ -28,7 +28,10 @@
 
 - **Repo:** https://github.com/vivekcyr25/frontend-ai-engineering-starter
 - **App directory in repo:** `foundations-app/`
-- **Live preview URL:** _pending first Vercel/Netlify deploy — paste here after connect_
+- **Live preview / production URL:** https://foundations-app-bay.vercel.app
+- **Deployment URL (this build):** https://foundations-qnco6x0q5-vivekcyr25s-projects.vercel.app
+- **Health check:** https://foundations-app-bay.vercel.app/health
+- **Vercel inspect:** https://vercel.com/vivekcyr25s-projects/foundations-app/AoCNyhNLZikrJM9mkKHdyKxriHTs
 
 ## Local verification
 

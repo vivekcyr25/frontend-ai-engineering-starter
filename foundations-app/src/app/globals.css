@@ -28,14 +28,22 @@
   --color-hero-from: var(--hero-from);
   --color-hero-to: var(--hero-to);
   --color-focus: var(--focus);
-  --font-sans: var(--font-body);
+  --font-sans: var(--font-display);
   --font-display: var(--font-display);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), system-ui, sans-serif;
+  font-family: var(--font-display), "Arial Narrow", sans-serif;
+  letter-spacing: 0.02em;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 a:focus-visible,

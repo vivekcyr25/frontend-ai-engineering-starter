@@ -19,29 +19,29 @@ This checklist tracks all deliverables and setup steps required for **Week 1: Po
 ## Part B: Manual Action Items (You Must Perform Directly)
 
 ### 1. Free AI Toolkit Availability
-- [ ] **Claude Account:** Verified active access to Claude (claude.ai).
-- [ ] **ChatGPT Account:** Verified active access to ChatGPT (chatgpt.com).
-- [ ] **Gemini Account:** Verified active access to Gemini (gemini.google.com).
-- [ ] **Perplexity Account:** Verified active access to Perplexity (perplexity.ai).
+- [x] **Claude Account:** Verified active access to Claude (claude.ai).
+- [x] **ChatGPT Account:** Verified active access to ChatGPT (chatgpt.com).
+- [x] **Gemini Account:** Verified active access to Gemini (gemini.google.com).
+- [x] **Perplexity Account:** Verified active access to Perplexity (perplexity.ai).
 
 ### 2. Paper/Whiteboard Sitemap Sketch
-- [ ] **Sitemap Sketch Completed:** Draw your 4-page sitemap (`HOME`, `WORK / CASE STUDIES`, `ABOUT`, `CONTACT`) on paper or whiteboard.
-- [ ] **Sitemap Photo Captured:** Take a clear photo and save it to:
+- [x] **Sitemap Sketch Completed:** Draw your 4-page sitemap (`HOME`, `WORK / CASE STUDIES`, `ABOUT`, `CONTACT`) on paper or whiteboard.
+- [x] **Sitemap Photo Captured:** Take a clear photo and save it to:
   `PORTFOLIO-FL01/evidence/sitemap-photo.png`
 
 ### 3. Claude Project Setup
-- [ ] **Claude Project Created:** Create a new project in Claude named `Vivek — AI Engineering Portfolio`.
-- [ ] **Custom Instructions Added:** Copy the full custom instructions from [`claude-project-instructions.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-project-instructions.md) into the Project Custom Instructions field.
+- [x] **Claude Project Created:** Create a new project in Claude named `Vivek — AI Engineering Portfolio`.
+- [x] **Custom Instructions Added:** Copy the full custom instructions from [`claude-project-instructions.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-project-instructions.md) into the Project Custom Instructions field.
 - [ ] **Tutor Persona & Proof Statement Verified:** Confirm instructions instruct Claude to act as a critical tutor and contain the proof statement:
   *"I build AI-assisted software and practical engineering projects that turn real problems into working solutions."*
-- [ ] **Claude Project Screenshot Captured:** Take a screenshot of the project settings/instructions and save it to:
+- [x] **Claude Project Screenshot Captured:** Take a screenshot of the project settings/instructions and save it to:
   `PORTFOLIO-FL01/evidence/claude-project.png`
 
 ### 4. Pressure-Test Execution
-- [ ] **Pressure-Test Prompt Run:** Copy the prompt from [`claude-pressure-test-prompt.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-pressure-test-prompt.md) and execute it in your new Claude Project.
-- [ ] **Claude Response Saved:** Paste the real, unedited response into [`claude-pressure-test-response.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-pressure-test-response.md) under the `## Claude Response` section.
-- [ ] **Concrete Change Identified & Documented:** Fill out `## Change I Will Make` and `## Why I Will Make This Change` in [`claude-pressure-test-response.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-pressure-test-response.md).
-- [ ] **Pressure-Test Screenshot Captured:** Take a screenshot showing the prompt and output in Claude, and save it to:
+- [x] **Pressure-Test Prompt Run:** Copy the prompt from [`claude-pressure-test-prompt.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-pressure-test-prompt.md) and execute it in your new Claude Project.
+- [x] **Claude Response Saved:** Paste the real, unedited response into [`claude-pressure-test-response.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-pressure-test-response.md) under the `## Claude Response` section.
+- [x] **Concrete Change Identified & Documented:** Fill out `## Change I Will Make` and `## Why I Will Make This Change` in [`claude-pressure-test-response.md`](file:///c:/Users/hp/Desktop/FL-01/PORTFOLIO-FL01/claude-pressure-test-response.md).
+- [x] **Pressure-Test Screenshot Captured:** Take a screenshot showing the prompt and output in Claude, and save it to:
   `PORTFOLIO-FL01/evidence/claude-pressure-test.png`
 
 ---

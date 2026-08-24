@@ -10,6 +10,8 @@ export const site = {
 export const navLinks = [
   { href: "/", label: "Home" },
   { href: "/work", label: "Work" },
+  { href: "/assistant", label: "AI Assistant" },
+  { href: "/playground", label: "Playground" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/health", label: "Health" },
@@ -20,8 +22,15 @@ export const screens = [
     slug: "home",
     href: "/",
     title: "Home",
-    status: "placeholder",
+    status: "live",
     note: "Hero, proof statement, featured work previews, primary CTA.",
+  },
+  {
+    slug: "assistant",
+    href: "/assistant",
+    title: "Technical AI Assistant",
+    status: "interactive-streaming",
+    note: "Real-time streaming assistant exploring pipeline architecture and verification logs.",
   },
   {
     slug: "work",
@@ -71,5 +80,12 @@ export const screens = [
     title: "Health Check",
     status: "live-data",
     note: "Server Component fetching public API data.",
+  },
+  {
+    slug: "playground",
+    href: "/playground",
+    title: "Accessibility Playground",
+    status: "interactive-lab",
+    note: "W3C ARIA Accessible Components vs shadcn/ui Comparison Lab.",
   },
 ] as const;

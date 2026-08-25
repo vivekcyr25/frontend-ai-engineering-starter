@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
 export interface ModalProps {
@@ -27,6 +27,10 @@ const FOCUSABLE_SELECTOR = [
   '[contentEditable=true]:not([tabindex="-1"])',
 ].join(", ");
 
+const subscribe = () => () => {};
+const getSnapshot = () => true;
+const getServerSnapshot = () => false;
+
 export function Modal({
   isOpen,
   onClose,
@@ -38,16 +42,12 @@ export function Modal({
   closeOnBackdropClick = true,
   className = "",
 }: ModalProps) {
-  const [mounted, setMounted] = useState<boolean>(false);
+  const isMounted = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const titleId = useId();
   const descriptionId = useId();
 
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -70,12 +70,14 @@ export function Modal({
       }
     }, 16);
 
+    const finalFocusTarget = finalFocusRef?.current;
+
     return () => {
       window.clearTimeout(focusTimeout);
       document.body.style.overflow = originalOverflow;
 
-      if (finalFocusRef?.current) {
-        finalFocusRef.current.focus();
+      if (finalFocusTarget) {
+        finalFocusTarget.focus();
       } else if (previouslyFocusedElementRef.current && typeof previouslyFocusedElementRef.current.focus === "function") {
         previouslyFocusedElementRef.current.focus();
       }
@@ -126,7 +128,7 @@ export function Modal({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  if (!mounted || !isOpen) {
+  if (!isMounted || !isOpen) {
     return null;
   }
 

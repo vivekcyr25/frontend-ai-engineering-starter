@@ -5,7 +5,7 @@ export default function SiteFooter() {
   return (
     <footer className="mt-auto border-t border-line bg-surface/50">
       <div className="mx-auto flex w-[min(1120px,calc(100%-2rem))] flex-col md:flex-row items-center justify-between gap-4 py-6 text-sm text-muted">
-        <p>© {new Date().getFullYear()} {site.name} · B.Tech CSE · Applied AI & Pipeline Engineering</p>
+        <p>© 2026 {site.name} · B.Tech CSE · Applied AI & Pipeline Engineering</p>
         
         <div className="flex items-center gap-4 text-xs font-medium">
           <a

@@ -28,7 +28,7 @@ function getModel() {
       baseURL: "https://api.groq.com/openai/v1",
     });
 
-    return groq(process.env.GROQ_MODEL || "llama-3.1-8b-instant");
+    return groq(process.env.GROQ_MODEL || "qwen/qwen3.6-27b");
   }
 
   return null;
@@ -169,17 +169,32 @@ export async function POST(req: Request) {
       return createFallbackResponse(lastUserMessage || "");
     }
 
-    const result = streamText({
-      model,
-      system: SYSTEM_PROMPT,
-      messages: await convertToModelMessages(body.messages),
-      tools: { getProjectDetails },
-      stopWhen: stepCountIs(5),
-    });
+    const sanitizedMessages = body.messages.map((message) => ({
+      ...message,
+      parts: Array.isArray(message.parts)
+        ? message.parts.filter((part) => (part as { type: string }).type !== "reasoning")
+        : message.parts,
+    }));
 
-    return result.toUIMessageStreamResponse({
-      onError: () => "The assistant could not complete that request. Please try again.",
-    });
+    try {
+      const result = streamText({
+        model,
+        system: SYSTEM_PROMPT,
+        messages: await convertToModelMessages(sanitizedMessages),
+        tools: { getProjectDetails },
+        stopWhen: stepCountIs(5),
+      });
+
+      return result.toUIMessageStreamResponse({
+        onError: (err) => {
+          console.warn("Stream error encountered:", err);
+          return "The assistant could not complete that request. Please try again.";
+        },
+      });
+    } catch (streamError) {
+      console.warn("streamText initialization failed, falling back to local knowledge stream:", streamError);
+      return createFallbackResponse(lastUserMessage || "");
+    }
   } catch (error) {
     console.error("Assistant route error:", error);
     return Response.json({ error: "The assistant could not read that request. Please try again." }, { status: 400 });

@@ -22,8 +22,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${condensed.variable} h-full`}>
-      <body className={`${condensed.className} flex min-h-full flex-col antialiased`}>
+    <html lang="en" className={`${condensed.variable} h-full`} suppressHydrationWarning>
+      <body className={`${condensed.className} flex min-h-full flex-col antialiased`} suppressHydrationWarning>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-foreground focus:px-3 focus:py-2 focus:text-background"

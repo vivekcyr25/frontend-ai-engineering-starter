@@ -1,515 +1,300 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useChat } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
+import ProjectDetailsCard from "@/components/ProjectDetailsCard";
 
-export interface Message {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  isStreaming?: boolean;
-}
-
-const INITIAL_SUGGESTIONS = [
-  "How does the frame-matcher fix the multi-face overlap artifact?",
-  "Explain the sequential dataflow for AI Video Restoration.",
-  "What is the security model of AIPS?",
-  "What are your documented GPU and VRAM constraints?",
+const SUGGESTED_PROMPTS = [
+  "Tell me about the AI Video Restoration Pipeline.",
+  "What is the AIPS architecture and security model?",
+  "How does Vivek's workflow prevent AI hallucinations?",
+  "What are the documented hardware boundaries?",
 ];
 
 export default function EngineeringAssistant() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "welcome-msg",
-      role: "assistant",
-      content:
-        "Hello! I am Vivek's Portfolio Engineering Assistant. I can answer questions about the **AI Video Restoration Pipeline**, **AIPS**, multi-model chaining with FFmpeg & InsightFace, and workflow verification hygiene.\n\nWhat technical area would you like to explore?",
-    },
-  ]);
-
-  const [input, setInput] = useState("");
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [isThinking, setIsThinking] = useState(false);
-  const [showJumpToBottom, setShowJumpToBottom] = useState(false);
+  const [inputVal, setInputVal] = useState("");
+  const [inputError, setInputError] = useState<string | null>(null);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [showJumpButton, setShowJumpButton] = useState(false);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const isAutoScrollEnabledRef = useRef(true);
+  const isNearBottomRef = useRef(true);
 
-  // Monitor scroll position to determine if user is at the bottom
-  const handleScroll = useCallback(() => {
+  const {
+    messages,
+    status,
+    error,
+    sendMessage,
+    regenerate,
+    stop,
+    clearError,
+  } = useChat({
+    transport: new DefaultChatTransport({
+      api: "/api/assistant",
+    }),
+  });
+
+  const isStreaming = status === "streaming" || status === "submitted";
+
+  // Handle scroll detection
+  const handleScroll = () => {
     if (!messagesContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = messagesContainerRef.current;
-    const distanceToBottom = scrollHeight - scrollTop - clientHeight;
-    const isNearBottom = distanceToBottom < 60;
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    const nearBottom = distanceFromBottom < 100;
+    isNearBottomRef.current = nearBottom;
+    setShowJumpButton(!nearBottom && messages.length > 0);
+  };
 
-    isAutoScrollEnabledRef.current = isNearBottom;
-    setShowJumpToBottom(!isNearBottom);
-  }, []);
-
-  const scrollToBottom = useCallback((smooth = true) => {
+  const scrollToBottom = () => {
     if (!messagesContainerRef.current) return;
     messagesContainerRef.current.scrollTo({
       top: messagesContainerRef.current.scrollHeight,
-      behavior: smooth ? "smooth" : "auto",
+      behavior: "smooth",
     });
-  }, []);
+    setShowJumpButton(false);
+  };
 
-  // Auto-scroll when messages update if auto-scroll is enabled
   useEffect(() => {
-    if (isAutoScrollEnabledRef.current) {
-      scrollToBottom(false);
+    if (isNearBottomRef.current) {
+      messagesContainerRef.current?.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "auto",
+      });
     }
-  }, [messages, isThinking, scrollToBottom]);
+  }, [messages, status]);
 
-  // Handle Stop Generation
-  const handleStop = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-    }
-    setIsGenerating(false);
-    setIsThinking(false);
+  const handleSubmit = async (e?: React.FormEvent, overrideText?: string) => {
+    if (e) e.preventDefault();
+    const textToSend = (overrideText ?? inputVal).trim();
 
-    // Mark current streaming message as finished
-    setMessages((prev) =>
-      prev.map((msg) => (msg.isStreaming ? { ...msg, isStreaming: false } : msg))
-    );
-
-    // Re-focus input
-    setTimeout(() => {
-      textareaRef.current?.focus();
-    }, 50);
-  }, []);
-
-  // Handle Send Message
-  const handleSendMessage = async (textToSend?: string) => {
-    const messageContent = (textToSend || input).trim();
-    if (!messageContent || isGenerating) return;
-
-    // Reset input
-    setInput("");
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
+    if (!textToSend) {
+      setInputError("Please enter a question or topic.");
+      return;
     }
 
-    const userMessageId = `user-${Date.now()}`;
-    const assistantMessageId = `asst-${Date.now()}`;
-
-    const userMessage: Message = {
-      id: userMessageId,
-      role: "user",
-      content: messageContent,
-    };
-
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-
-    // Prepare assistant message
-    setIsGenerating(true);
-    setIsThinking(true);
-    isAutoScrollEnabledRef.current = true;
-    scrollToBottom(true);
-
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
+    setInputError(null);
+    if (!overrideText) setInputVal("");
+    clearError();
 
     try {
-      const response = await fetch("/api/assistant", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
-        }),
-        signal: abortController.signal,
-      });
+      await sendMessage({ text: textToSend });
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
+  };
 
-      if (!response.ok || !response.body) {
-        throw new Error(`Server returned status ${response.status}`);
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-
-      let assistantContent = "";
-      let firstTokenReceived = false;
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        assistantContent += chunk;
-
-        if (!firstTokenReceived && chunk.length > 0) {
-          firstTokenReceived = true;
-          setIsThinking(false);
-
-          // Add assistant message bubble
-          setMessages((prev) => [
-            ...prev,
-            {
-              id: assistantMessageId,
-              role: "assistant",
-              content: assistantContent,
-              isStreaming: true,
-            },
-          ]);
-        } else {
-          // Update existing message
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === assistantMessageId
-                ? { ...msg, content: assistantContent, isStreaming: true }
-                : msg
-            )
-          );
-        }
-      }
-
-      // Finish streaming
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === assistantMessageId ? { ...msg, isStreaming: false } : msg
-        )
-      );
-    } catch (err: unknown) {
-      if ((err as Error)?.name === "AbortError") {
-        // User aborted - partial response is already preserved
-        console.log("Generation stopped by user.");
-      } else {
-        console.error("Stream generation error:", err);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: `error-${Date.now()}`,
-            role: "assistant",
-            content: "⚠ An error occurred while retrieving project information. Please try again.",
-          },
-        ]);
-      }
+  const handleRetry = async () => {
+    if (isRetrying || isStreaming) return;
+    setIsRetrying(true);
+    clearError();
+    try {
+      await regenerate();
+    } catch (err) {
+      console.error("Retry failed:", err);
     } finally {
-      setIsGenerating(false);
-      setIsThinking(false);
-      abortControllerRef.current = null;
-      setTimeout(() => {
-        textareaRef.current?.focus();
-      }, 50);
+      setIsRetrying(false);
     }
-  };
-
-  // Keyboard shortcut: Enter sends, Shift+Enter newlines
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
-
-  // Auto-resize textarea
-  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-    e.target.style.height = "auto";
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 160)}px`;
   };
 
   return (
-    <div className="flex flex-col h-[650px] w-full max-w-4xl mx-auto rounded-xl border border-slate-800 bg-[#090d16] shadow-2xl overflow-hidden text-slate-100 font-sans">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-800 bg-[#0d1424]">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-cyan-950 border border-cyan-700/60 text-cyan-400 font-mono text-xs font-bold shadow-inner">
-            AI
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold tracking-tight text-white">
-                Vivek&apos;s Portfolio Engineering Assistant
-              </h3>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-950 border border-cyan-800/80 text-[10px] font-mono text-cyan-400 uppercase tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-                Grounded Truth
-              </span>
-            </div>
-            <p className="text-xs text-slate-400">
-              Explores real video pipeline code, AIPS architecture, and verification logs.
-            </p>
-          </div>
-        </div>
-
-        {isGenerating && (
-          <button
-            type="button"
-            onClick={handleStop}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-400 bg-red-950/40 hover:bg-red-900/60 border border-red-800/60 rounded-md transition shadow-sm"
-            aria-label="Stop generating response"
-          >
-            <span className="w-2 h-2 rounded-sm bg-red-400"></span>
-            Stop Generation
-          </button>
-        )}
-      </div>
-
-      {/* Messages Scroll Area */}
+    <div className="flex flex-col h-[650px] w-full rounded-xl border border-line bg-surface overflow-hidden shadow-sm">
+      {/* Messages Viewport */}
       <div
         ref={messagesContainerRef}
         onScroll={handleScroll}
-        role="log"
-        aria-live="polite"
-        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 relative scroll-smooth"
+        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6"
       >
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
-            {msg.role === "assistant" && (
-              <div className="flex-shrink-0 w-7 h-7 rounded-md bg-cyan-950/80 border border-cyan-700/50 flex items-center justify-center text-cyan-400 text-xs font-mono font-bold mt-1">
-                VS
-              </div>
-            )}
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center max-w-md mx-auto py-8">
+            <div className="h-10 w-10 rounded-full bg-accent/20 border border-accent-ink/30 flex items-center justify-center text-accent-ink font-bold mb-3">
+              AI
+            </div>
+            <h2 className="text-lg font-bold text-foreground">
+              Portfolio Engineering Assistant
+            </h2>
+            <p className="text-sm text-muted mt-1 mb-6">
+              Ask about technical decisions, frame-matcher algorithms, systems security, or select a topic below:
+            </p>
 
-            <div
-              className={`max-w-[85%] md:max-w-[75%] rounded-lg p-4 text-sm leading-relaxed ${
-                msg.role === "user"
-                  ? "bg-slate-800 border border-slate-700 text-white shadow-sm"
-                  : "bg-[#0f172a] border border-slate-800/90 text-slate-200 shadow-md"
-              }`}
-            >
-              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mb-1.5">
-                <span>{msg.role === "user" ? "You (Reviewer)" : "Technical Assistant"}</span>
-                {msg.isStreaming && (
-                  <span className="text-cyan-400 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
-                    Streaming
-                  </span>
-                )}
-              </div>
-
-              {/* Render Structured Text & Markdown Safely */}
-              <SafeMarkdownRenderer content={msg.content} />
+            <div className="grid grid-cols-1 gap-2 w-full">
+              {SUGGESTED_PROMPTS.map((prompt) => (
+                <button
+                  key={prompt}
+                  type="button"
+                  onClick={() => handleSubmit(undefined, prompt)}
+                  className="text-left text-xs md:text-sm p-3 rounded-lg border border-line bg-background hover:border-accent-ink hover:text-accent-ink transition text-foreground"
+                >
+                  &rarr; {prompt}
+                </button>
+              ))}
             </div>
           </div>
-        ))}
+        ) : (
+          messages.map((message) => {
+            const isUser = message.role === "user";
 
-        {/* Thinking / Loading State before first token */}
-        {isThinking && (
-          <div className="flex gap-3 items-start animate-in fade-in duration-200">
-            <div className="flex-shrink-0 w-7 h-7 rounded-md bg-cyan-950/80 border border-cyan-700/50 flex items-center justify-center text-cyan-400 text-xs font-mono font-bold">
-              VS
-            </div>
-            <div className="bg-[#0f172a] border border-slate-800 p-3.5 rounded-lg text-xs text-cyan-400 font-mono flex items-center gap-2.5">
-              <div className="flex gap-1">
-                <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-bounce"></span>
+            return (
+              <div
+                key={message.id}
+                className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
+              >
+                <span className="text-[11px] font-mono uppercase tracking-wider text-muted mb-1 px-1">
+                  {isUser ? "You" : "Portfolio Assistant"}
+                </span>
+
+                <div
+                  className={`max-w-[88%] md:max-w-[80%] rounded-xl p-4 text-sm leading-relaxed ${
+                    isUser
+                      ? "bg-foreground text-background font-medium"
+                      : "bg-background border border-line text-foreground"
+                  }`}
+                >
+                  {message.parts && message.parts.length > 0 ? (
+                    message.parts.map((part, index) => {
+                      if (part.type === "text") {
+                        return (
+                          <div key={index} className="whitespace-pre-wrap">
+                            {part.text}
+                          </div>
+                        );
+                      }
+
+                      // Tool result parts
+                      if (part.type.startsWith("tool-") || part.type === "dynamic-tool") {
+                        const toolPart = part as unknown as {
+                          state?: string;
+                          output?: unknown;
+                          errorText?: string;
+                        };
+
+                        if (toolPart.state === "output-available") {
+                          return (
+                            <ProjectDetailsCard
+                              key={index}
+                              output={toolPart.output}
+                            />
+                          );
+                        }
+
+                        if (toolPart.state === "output-error") {
+                          return (
+                            <div
+                              key={index}
+                              className="mt-2 rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700 font-mono"
+                            >
+                              Tool Error: {toolPart.errorText || "Could not complete lookup"}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <div
+                            key={index}
+                            className="mt-2 flex items-center gap-2 text-xs font-mono text-muted bg-surface p-2 rounded border border-line animate-pulse"
+                          >
+                            <span className="h-2 w-2 rounded-full bg-accent-ink" />
+                            Fetching verified portfolio records...
+                          </div>
+                        );
+                      }
+
+                      return null;
+                    })
+                  ) : null}
+                </div>
               </div>
-              <span>Retrieving project architecture &amp; verified evidence...</span>
-            </div>
+            );
+          })
+        )}
+
+        {/* Streaming Thinking Indicator */}
+        {isStreaming && (
+          <div className="flex items-center gap-2 text-xs font-mono text-muted pl-1">
+            <span className="inline-block h-2 w-2 rounded-full bg-accent-ink animate-ping" />
+            <span>Streaming assistant response...</span>
           </div>
         )}
 
-        {/* Floating Jump to Latest Button */}
-        {showJumpToBottom && (
-          <button
-            type="button"
-            onClick={() => scrollToBottom(true)}
-            className="fixed bottom-24 right-8 md:bottom-28 md:right-1/4 z-30 flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 text-xs font-bold rounded-full shadow-lg transition transform hover:-translate-y-0.5"
-            aria-label="Jump to latest message"
-          >
-            <span>↓</span> Jump to latest
-          </button>
+        {/* Designed Error Box */}
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50/80 p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-semibold text-red-900">
+                Connection or Provider Error
+              </p>
+              <button
+                type="button"
+                onClick={handleRetry}
+                disabled={isRetrying}
+                className="px-3 py-1 bg-red-700 hover:bg-red-800 text-white rounded text-xs font-medium transition disabled:opacity-50"
+              >
+                {isRetrying ? "Retrying..." : "Retry Generation"}
+              </button>
+            </div>
+            <p className="text-xs text-red-700 font-mono">
+              {error.message || "An unexpected error occurred while communicating with the assistant."}
+            </p>
+          </div>
         )}
       </div>
 
-      {/* Suggestion Chips */}
-      {messages.length <= 2 && !isGenerating && (
-        <div className="px-4 py-2 bg-[#0a0f1d] border-t border-slate-800/60 overflow-x-auto">
-          <div className="flex gap-2 text-xs">
-            {INITIAL_SUGGESTIONS.map((sug) => (
-              <button
-                key={sug}
-                type="button"
-                onClick={() => handleSendMessage(sug)}
-                className="flex-shrink-0 px-2.5 py-1 rounded bg-slate-900 border border-slate-800 hover:border-cyan-500/60 text-slate-300 hover:text-cyan-300 transition text-left text-[11px]"
-              >
-                {sug}
-              </button>
-            ))}
-          </div>
+      {/* Jump to bottom pill */}
+      {showJumpButton && (
+        <div className="relative flex justify-center -mt-10 mb-2 z-10">
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            className="px-3 py-1 bg-foreground text-background text-xs font-semibold rounded-full shadow hover:opacity-90 transition"
+          >
+            &darr; Jump to latest
+          </button>
         </div>
       )}
 
       {/* Input Form */}
-      <div className="p-3 md:p-4 border-t border-slate-800 bg-[#0d1424]">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="flex gap-2 items-end"
-        >
-          <div className="flex-1 relative">
-            <textarea
-              ref={textareaRef}
-              rows={1}
-              value={input}
-              onChange={handleInput}
-              onKeyDown={handleKeyDown}
-              disabled={isGenerating}
-              placeholder={
-                isGenerating
-                  ? "Assistant is streaming response..."
-                  : "Ask about Vivek's video pipeline, AIPS, or verification workflows..."
-              }
-              aria-label="Ask about engineering work"
-              className="w-full resize-none rounded-lg bg-[#070b14] border border-slate-700/80 px-3.5 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent disabled:opacity-60 disabled:cursor-not-allowed max-h-40"
-            />
-          </div>
+      <form
+        onSubmit={handleSubmit}
+        className="p-3 md:p-4 border-t border-line bg-background flex flex-col gap-1.5"
+      >
+        {inputError && (
+          <span className="text-xs text-red-600 font-medium px-1">
+            {inputError}
+          </span>
+        )}
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={inputVal}
+            onChange={(e) => {
+              setInputVal(e.target.value);
+              if (inputError) setInputError(null);
+            }}
+            placeholder="Ask about AI pipelines, frame-matcher, or AIPS..."
+            disabled={isStreaming}
+            className="flex-1 px-3.5 py-2.5 rounded-lg border border-line bg-surface text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-focus disabled:opacity-60"
+          />
 
-          {isGenerating ? (
+          {isStreaming ? (
             <button
               type="button"
-              onClick={handleStop}
-              className="px-4 py-2.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs font-semibold tracking-wide transition shadow"
-              aria-label="Stop generation"
+              onClick={stop}
+              className="px-4 py-2.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition"
             >
               Stop
             </button>
           ) : (
             <button
               type="submit"
-              disabled={!input.trim()}
-              className="px-4 py-2.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold tracking-wide transition shadow disabled:opacity-40 disabled:cursor-not-allowed"
-              aria-label="Send message"
+              disabled={!inputVal.trim()}
+              className="px-4 py-2.5 bg-accent-ink hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition disabled:opacity-40"
             >
               Send
             </button>
           )}
-        </form>
-
-        <div className="mt-1.5 flex justify-between items-center text-[10px] text-slate-500 font-mono">
-          <span>Enter to send · Shift+Enter for newline</span>
-          <span>Zero hallucinated metrics · Server-side protected API</span>
         </div>
-      </div>
+      </form>
     </div>
   );
-}
-
-/**
- * Safe, Robust Partial Markdown Renderer
- * Parses code blocks, headers, bullet points, bolding, and links without crashing on mid-token stream splits.
- */
-function SafeMarkdownRenderer({ content }: { content: string }) {
-  if (!content) return null;
-
-  // Split by code blocks first
-  const parts = content.split(/(```[\s\S]*?```)/g);
-
-  return (
-    <div className="space-y-2.5 font-sans">
-      {parts.map((part, idx) => {
-        if (part.startsWith("```")) {
-          // Code block
-          const match = part.match(/^```(\w+)?\n?([\s\S]*?)```?$/);
-          const lang = match?.[1] || "text";
-          const code = match?.[2] || part.slice(3, -3);
-
-          return (
-            <div key={idx} className="my-2 rounded-md overflow-hidden border border-slate-700 bg-slate-950">
-              <div className="flex justify-between items-center px-3 py-1 bg-slate-900 border-b border-slate-800 text-[10px] font-mono text-cyan-400">
-                <span>{lang}</span>
-                <span className="text-slate-500">Pipeline Code</span>
-              </div>
-              <pre className="p-3 text-xs font-mono text-slate-200 overflow-x-auto">
-                <code>{code.trim()}</code>
-              </pre>
-            </div>
-          );
-        }
-
-        // Standard text lines
-        const lines = part.split("\n");
-
-        return (
-          <div key={idx} className="space-y-1.5">
-            {lines.map((line, lineIdx) => {
-              const trimmed = line.trim();
-
-              if (!trimmed) return <div key={lineIdx} className="h-1" />;
-
-              // Headers
-              if (trimmed.startsWith("### ")) {
-                return (
-                  <h4 key={lineIdx} className="text-sm font-bold text-cyan-400 pt-1">
-                    {parseInlineMarkdown(trimmed.slice(4))}
-                  </h4>
-                );
-              }
-              if (trimmed.startsWith("#### ")) {
-                return (
-                  <h5 key={lineIdx} className="text-xs font-semibold text-slate-200 pt-0.5">
-                    {parseInlineMarkdown(trimmed.slice(5))}
-                  </h5>
-                );
-              }
-
-              // Bullet list items
-              if (trimmed.startsWith("- ") || trimmed.startsWith("* ")) {
-                return (
-                  <div key={lineIdx} className="flex items-start gap-2 pl-2">
-                    <span className="text-cyan-400 font-bold text-xs">•</span>
-                    <span>{parseInlineMarkdown(trimmed.slice(2))}</span>
-                  </div>
-                );
-              }
-
-              // Numbered list items
-              const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
-              if (numMatch) {
-                return (
-                  <div key={lineIdx} className="flex items-start gap-2 pl-2">
-                    <span className="text-cyan-400 font-mono text-xs">{numMatch[1]}.</span>
-                    <span>{parseInlineMarkdown(numMatch[2])}</span>
-                  </div>
-                );
-              }
-
-              return <p key={lineIdx}>{parseInlineMarkdown(line)}</p>;
-            })}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-/**
- * Parses bold (**text**), inline code (`code`), and italics (*text*)
- */
-function parseInlineMarkdown(text: string): React.ReactNode {
-  // Regex splitting by bold (**...**) and inline code (`...`)
-  const segments = text.split(/(\*\*.*?\*\*|`.*?`)/g);
-
-  return segments.map((seg, i) => {
-    if (seg.startsWith("**") && seg.endsWith("**") && seg.length >= 4) {
-      return (
-        <strong key={i} className="font-semibold text-white">
-          {seg.slice(2, -2)}
-        </strong>
-      );
-    }
-    if (seg.startsWith("`") && seg.endsWith("`") && seg.length >= 2) {
-      return (
-        <code
-          key={i}
-          className="px-1.5 py-0.5 mx-0.5 rounded bg-slate-900 border border-slate-800 text-cyan-300 font-mono text-[12px]"
-        >
-          {seg.slice(1, -1)}
-        </code>
-      );
-    }
-    return seg;
-  });
 }

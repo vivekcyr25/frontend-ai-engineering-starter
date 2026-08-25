@@ -9,14 +9,19 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^2.0.119",
+    "@ai-sdk/openai-compatible": "^1.0.49",
+    "@ai-sdk/react": "^2.0.248",
     "@radix-ui/react-dialog": "^1.1.23",
     "@radix-ui/react-tabs": "^1.1.21",
+    "ai": "^5.0.245",
     "clsx": "^2.1.1",
     "lucide-react": "^1.34.0",
     "next": "16.3.2",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

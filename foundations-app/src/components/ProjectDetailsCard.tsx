@@ -44,7 +44,7 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
               href={project.repositoryUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-medium text-accent-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              className="text-xs font-semibold text-accent-ink hover:underline min-h-[44px] inline-flex items-center px-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >
               GitHub →
             </a>
@@ -54,7 +54,7 @@ function ProjectCard({ project }: { project: PortfolioProject }) {
               href={project.demoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-medium text-accent-ink hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+              className="text-xs font-semibold text-accent-ink hover:underline min-h-[44px] inline-flex items-center px-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
             >
               Live Demo →
             </a>

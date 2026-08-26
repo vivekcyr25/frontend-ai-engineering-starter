@@ -146,7 +146,7 @@ export default function EngineeringAssistant() {
                 </span>
 
                 <div
-                  className={`max-w-[88%] md:max-w-[80%] rounded-xl p-4 text-sm leading-relaxed ${
+                  className={`max-w-[92%] sm:max-w-[88%] md:max-w-[80%] rounded-xl p-4 text-sm leading-relaxed break-words overflow-hidden ${
                     isUser
                       ? "bg-foreground text-background font-medium"
                       : "bg-background border border-line text-foreground"

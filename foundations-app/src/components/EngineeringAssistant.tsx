@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
 import ProjectDetailsCard from "@/components/ProjectDetailsCard";
+import SendButton from "@/components/ui/SendButton";
 
 const SUGGESTED_PROMPTS = [
   "Tell me about the AI Video Restoration Pipeline.",
@@ -276,23 +277,22 @@ export default function EngineeringAssistant() {
             className="flex-1 px-3.5 py-2.5 rounded-lg border border-line bg-surface text-sm text-foreground placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-focus disabled:opacity-60"
           />
 
-          {isStreaming ? (
-            <button
-              type="button"
-              onClick={stop}
-              className="px-4 py-2.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition"
-            >
-              Stop
-            </button>
-          ) : (
-            <button
-              type="submit"
-              disabled={!inputVal.trim()}
-              className="px-4 py-2.5 bg-accent-ink hover:opacity-90 text-white text-xs font-bold uppercase tracking-wider rounded-lg transition disabled:opacity-40"
-            >
-              Send
-            </button>
-          )}
+          <SendButton
+            type="submit"
+            state={
+              isStreaming
+                ? "loading"
+                : error
+                ? "error"
+                : !inputVal.trim()
+                ? "disabled"
+                : "idle"
+            }
+            disabled={!inputVal.trim() && !error && !isStreaming}
+            showStopInLoading={true}
+            onStop={stop}
+            onRetry={handleRetry}
+          />
         </div>
       </form>
     </div>

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { site } from "@/lib/site";
+import ContactForm from "@/components/ContactForm";
 
 export const metadata = {
   title: `Contact — ${site.name}`,
@@ -20,6 +21,11 @@ export default function ContactPage() {
           I am currently open to Junior Backend, Pipeline Engineering, and Applied AI roles.
           The best way to evaluate my work is through my verified technical case studies.
         </p>
+      </div>
+
+      {/* Validated Contact Form */}
+      <div className="max-w-2xl">
+        <ContactForm />
       </div>
 
       {/* Direct Contact Cards */}

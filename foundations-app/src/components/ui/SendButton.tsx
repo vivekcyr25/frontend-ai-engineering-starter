@@ -154,7 +154,9 @@ export default function SendButton({
   const computedAriaLabel =
     ariaLabel ||
     (activeState === "loading"
-      ? loadingLabel
+      ? showStopInLoading && onStop
+        ? "Stop"
+        : loadingLabel
       : activeState === "success"
       ? successLabel
       : activeState === "error"

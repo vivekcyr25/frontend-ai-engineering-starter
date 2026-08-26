@@ -13,6 +13,7 @@ export const navLinks = [
   { href: "/assistant", label: "AI Assistant" },
   { href: "/playground", label: "Playground" },
   { href: "/demo", label: "Motion Demo" },
+  { href: "/testing", label: "Testing & CI" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
   { href: "/health", label: "Health" },
